@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PERÍCIA INTERDIMENSIONAL</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Estilos Base e Efeito CRT (Scanlines) */
+        body { 
+            background: #020502; 
+            color: #32ff7e; 
+            font-family: 'VT323', monospace; 
+            font-size: 22px; /* Fonte maior por ser retro */
+            margin: 0; 
+            display: flex; 
+            flex-direction: column;
+            height: 100vh;
+            padding: 15px;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        /* Efeito visual de monitor de tubo */
+        body::after {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+            z-index: 2;
+            background-size: 100% 4px;
+            pointer-events: none; /* Permite clicar através das linhas */
+        }
+        
+        #terminal {
+            border: 1px solid #32ff7e;
+            padding: 20px;
+            flex-grow: 1;
+            overflow-y: auto;
+            background: rgba(0, 15, 0, 0.85);
+            box-shadow: inset 0 0 20px rgba(50, 255, 126, 0.3), 0 0 10px rgba(50, 255, 126, 0.2);
+            border-radius: 5px;
+            scroll-behavior: smooth;
+            text-shadow: 0 0 3px currentColor; /* Efeito Glow */
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Customizando a barra de rolagem */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #050a05; border-left: 1px solid #113311; }
+        ::-webkit-scrollbar-thumb { background: #32ff7e; border-radius: 4px; box-shadow: 0 0 5px #32ff7e; }
+
+        .input-area {
+            margin-top: 15px;
+            display: none; 
+            border-top: 1px dashed #32ff7e;
+            padding-top: 15px;
+        }
+
+        input {
+            background: transparent;
+            border: none;
+            color: #f1c40f; 
+            font-family: 'VT323', monospace;
+            font-size: 22px;
+            outline: none;
+            flex-grow: 1;
+            text-transform: uppercase;
+            width: 80%;
+            text-shadow: 0 0 5px currentColor;
+            caret-color: #f1c40f; /* Cursor piscante amarelo */
+        }
+
+        /* Indicador de Nível */
+        #progress-bar {
+            position: sticky;
+            top: 0;
+            background: #020502;
+            padding: 5px;
+            border-bottom: 1px dashed #32ff7e;
+            text-align: right;
+            font-weight: bold;
+            display: none;
+            z-index: 10;
+        }
+
+        /* Cores dos Personagens com Brilho */
+        .system { color: #32ff7e; }
+        .hufflepuff { color: #f1c40f; font-weight: bold; text-shadow: 0 0 8px rgba(241, 196, 15, 0.6); } 
+        .rick { color: #00d2d3; text-shadow: 0 0 5px rgba(0, 210, 211, 0.5); }
+        .morty { color: #ffeb3b; }
+        .snape { color: #a5b1c2; }
+        .error { color: #ff4d4d; text-shadow: 0 0 5px rgba(255, 77, 77, 0.5); }
+        .success { color: #2ecc71; font-weight: bold; text-shadow: 0 0 5px rgba(46, 204, 113, 0.5); }
+        
+        .hidden { display: none; }
+        
+        #final-screen {
+            text-align: center;
+            animation: fadeIn 3s ease-in;
+            margin-top: 20px;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        img { 
+            max-width: 100%; 
+            border-radius: 5px; 
+            margin-top: 15px;
+            border: 2px solid #f1c40f; 
+            box-shadow: 0 0 15px rgba(241, 196, 15, 0.5);
+            position: relative;
+            z-index: 10;
+        }
+        
+        /* Glitch Effect para a tela inicial */
+        .glitch { animation: glitch 0.2s linear infinite; }
+        @keyframes glitch {
+            0% { transform: translate(0) }
+            20% { transform: translate(-2px, 2px) }
+            40% { transform: translate(-2px, -2px) }
+            60% { transform: translate(2px, 2px) }
+            80% { transform: translate(2px, -2px) }
+            100% { transform: translate(0) }
+        }
+    </style>
+</head>
+<body>
+
+<div id="terminal">
+    <div id="progress-bar">[ STATUS: INICIANDO... ]</div>
+    <div id="output"></div>
+
+    <div class="input-area" id="input-container">
+        <span>> RESPOSTA: </span>
+        <input type="text" id="user-input" autocomplete="off" spellcheck="false" autofocus>
+    </div>
+
+    <div id="final-screen" class="hidden">
+        <h2 class="hufflepuff">⚡ CASO RESOLVIDO! ⚡</h2>
+        <p>Feliz Aniversário amor! amo muito você, espero que tenha se divertido jogando, meu nene.</p>
+        <p>Eu demorei um pouquinho para fazer, então espero que jogue sempre que puder humpf(ou menos 50 pontos para a Lufa-Lufa!).</p>
+        <p style="font-size: 1.5rem; color: #ff4757; text-shadow: 0 0 10px #ff4757; font-weight: bold; margin-top: 20px;">Feliz Aniversário, meu amor!</p>
+        <img src="mozinho.gif" alt="Rick and Morty Love">
+        <p style="margin-top: 20px; font-size: 1.1rem; color: #a5b1c2;">Assinado: A programadora mais gostosa e grifinória ❤️💛</p>
+    </div>
+</div>
+
+<script>
+    const output = document.getElementById('output');
+    const inputContainer = document.getElementById('input-container');
+    const input = document.getElementById('user-input');
+    const final = document.getElementById('final-screen');
+    const terminal = document.getElementById('terminal');
+    const progressBar = document.getElementById('progress-bar');
+
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    let currentLevel = 0;
+    let isTyping = false;
+
+    // BANCO DE DADOS DE PERGUNTAS E HISTÓRIA
+    const levels = [
+        {
+            dialogue: [
+                "<span class='system'>> LOCALIZAÇÃO: Masmorras de Poções, Hogwarts.</span>",
+                "<span class='rick'>RICK: \"Morty! *burp* Eu falei pra não mexer no painel, seu idiota! Caímos num... num porão gótico cheio de crianças de capa e frascos inúteis. E olha isso, tem uma poça de sangue aqui e minha arma de portais pifou!\"</span>",
+                "<span class='snape'>SNAPE: \"Dumbledore deve estar louco se acha que vou tolerar... *trouxas* e seus artefatos no meu laboratório. Menos 50 pontos para seja lá qual for a Casa patética de vocês.\"</span>",
+                "<span class='snape'>SNAPE: \"Se querem sair daqui vivos e achar quem sabotou esse... brinquedo, vamos precisar de uma mente analítica. E infelizmente, a melhor Perita Criminal de Hogwarts é da Lufa-Lufa.\"</span>",
+                "<br>",
+                "<span class='system'>> NÍVEL 1: QUÍMICA FORENSE</span>",
+                "<span class='snape'>SNAPE: \"Vamos testar o básico, antes que eu perca a paciência. Qual substância quimioluminescente reage com o ferro da hemoglobina para detectar sangue oculto?\"</span>"
+            ],
+            answers: ['luminol'],
+            hint: "<span class='error'>> SNAPE: Francamente... Até o Neville Longbottom saberia essa. Brilha em azul e começa com L. Tente de novo.</span>"
+        },
+        {
+            dialogue: [
+                "<span class='success'>> ACESSO LIBERADO. PISTA ENCONTRADA.</span>",
+                "<span class='morty'>MORTY: \"A-ah cara, uau! E-ela é boa mesmo, Rick! Mas olha, tá muito escuro aqui, eu... eu não tô gostando disso, tem uns barulhos estranhos vindo daquelas gaiolas!\"</span>",
+                "<br>",
+                "<span class='system'>> NÍVEL 2: HARRY POTTER</span>",
+                "<span class='system'>SISTEMA: Qual feitiço a Perita deve conjurar para iluminar a ponta da varinha e acalmar o Morty?</span>"
+            ],
+            answers: ['lumos', 'lumus'],
+            hint: "<span class='error'>> MORTY: A-aw geez! Socorro, tá muito escuro! P-pensa na palavra 'luminoso', por favor!</span>"
+        },
+        {
+            dialogue: [
+                "<span class='success'>> VARINHA ACESA. VISIBILIDADE 100%.</span>",
+                "<span class='rick'>RICK: \"Tá, tá, grande coisa, ela acendeu uma luzinha. Magia é só ciência que vocês têm preguiça de explicar! *burp* Achei uma garrafa com uma impressão digital latente.\"</span>",
+                "<span class='rick'>RICK: \"Vou aquecer uma supercola aqui pra revelar isso. Qual o componente principal, espertinha?\"</span>",
+                "<br>",
+                "<span class='system'>> NÍVEL 3: QUÍMICA / PERÍCIA</span>",
+                "<span class='system'>SISTEMA: Qual é o nome do principal componente químico da supercola, usado na papiloscopia para revelar digitais?</span>"
+            ],
+            answers: ['cianoacrilato', 'cyanoacrilato'],
+            hint: "<span class='error'>> RICK: Sério? Você quer ser perita ou vai fazer poção do amor? Começa com 'Ciano' e termina com 'acrilato'. Pensa um pouco!</span>"
+        },
+        {
+            dialogue: [
+                "<span class='success'>> IMPRESSÃO DIGITAL REVELADA COM SUCESSO.</span>",
+                "<span class='morty'>MORTY: \"E-eca, Rick! A digital... parece de um... um legume mutante com verrugas! I-isso me lembra daquela vez que você fez de tudo pra fugir da terapia em família...\"</span>",
+                "<br>",
+                "<span class='system'>> NÍVEL 4: RICK & MORTY</span>",
+                "<span class='morty'>MORTY: \"E-em qual vegetal o Rick se transformou naquele dia?\"</span>"
+            ],
+            answers: ['picles', 'pickle', 'pepino'],
+            hint: "<span class='error'>> MORTY: A-aw geez, eu tenho pesadelos com isso até hoje! Ele ficava gritando 'I'm ______ Rick!'. Ajuda aí!</span>"
+        },
+        {
+            dialogue: [
+                "<span class='success'>> DADO CONFIRMADO.</span>",
+                "<span class='snape'>SNAPE: \"...Fascinante. A digital pertence a um aluno da sua própria Casa. A questão é: a sua famosa 'lealdade' vai impedi-la de investigar os seus?\"</span>",
+                "<br>",
+                "<span class='system'>> NÍVEL 5: HARRY POTTER</span>",
+                "<span class='snape'>SNAPE: \"Qual é mesmo a fera subestimada que representa a Lufa-Lufa? Aquela que parece dócil, mas é letal quando provocada?\"</span>"
+            ],
+            answers: ['texugo'],
+            hint: "<span class='error'>> SNAPE: Que decepção para a fundadora Helga. Não é um leão exibido nem uma águia pedante. É um mamífero listrado que cava túneis!</span>"
+        },
+        {
+            dialogue: [
+                "<span class='success'>> ANIMAL CONFIRMADO. LEALDADE APROVADA.</span>",
+                "<span class='rick'>RICK: \"Dane-se o bicho listrado! *burp* A poção desse idiota tá bloqueando o sinal do meu portal. Eu preciso separar essa gororoba mágica nos compostos originais!\"</span>",
+                "<br>",
+                "<span class='system'>> NÍVEL 6: QUÍMICA</span>",
+                "<span class='system'>SISTEMA: Qual é o método laboratorial físico-químico usado para separar os componentes de uma mistura complexa?</span>"
+            ],
+            answers: ['cromatografia'],
+            hint: "<span class='error'>> RICK: Você tá de brincadeira comigo?! Pensa no papel filtro com canetinha, mas em nível universitário! Começa com 'Cromato'!</span>"
+        },
+        {
+            dialogue: [
+                "<span class='success'>> COMPONENTES SEPARADOS. TOXINA IDENTIFICADA.</span>",
+                "<span class='snape'>SNAPE: \"Seu linguajar é deplorável, velho tolo. Essa 'gororoba' é uma toxina refinadíssima. Três gotas e até o Lorde das Trevas revelaria seus segredos mais íntimos.\"</span>",
+                "<br>",
+                "<span class='system'>> NÍVEL 7: HARRY POTTER</span>",
+                "<span class='snape'>SNAPE: \"Como se chama essa poção, que atua como o mais puro 'soro da verdade'?\"</span>"
+            ],
+            answers: ['veritaserum'],
+            hint: "<span class='error'>> SNAPE: Sua mente está divagando... A poção do soro da verdade começa com 'Veritas'. Não me faça tirar mais pontos.</span>"
+        },
+        {
+            dialogue: [
+                "<span class='success'>> ANTÍDOTO SINTETIZADO.</span>",
+                "<span class='morty'>MORTY: \"A-aw, geez, Rick! O antídoto funcionou, mas... e-eca! Tem um cadáver de um bicho ali no canto! Tá... tá cheio de larvas e moscas voando! E-eu acho que vou vomitar...\"</span>",
+                "<br>",
+                "<span class='system'>> NÍVEL 8: PERÍCIA CRIMINAL</span>",
+                "<span class='system'>SISTEMA: Como se chama a área da perícia que estuda insetos encontrados em cadáveres para estimar o tempo de morte (IPM)?</span>"
+            ],
+            answers: ['entomologia', 'entomologia forense'],
+            hint: "<span class='error'>> MORTY: Rápido, por favor! É o estudo dos insetos na perícia... 'Entomo' alguma coisa... A-antes que as larvas venham pra cá!</span>"
+        },
+        {
+            dialogue: [
+                "<span class='success'>> TEMPO DE MORTE ESTIMADO. SUSPEITO DESCARTADO.</span>",
+                "<span class='rick'>RICK: \"Ótimo. O bicho morreu há três dias. Muito útil, Sherlock! *burp* Chega de brincar de detetive de varinha e suco de fada. Calibrei a arma.\"</span>",
+                "<span class='rick'>RICK: \"Só preciso que você digite a assinatura da minha dimensão original pra gente vazar daqui. Anda logo!\"</span>",
+                "<br>",
+                "<span class='system'>> NÍVEL 9: RICK & MORTY</span>",
+                "<span class='rick'>RICK: \"Qual é o código da minha dimensão original? (Letra e três números)\"</span>"
+            ],
+            answers: ['c-137', 'c137', 'c 137'],
+            hint: "<span class='error'>> RICK: Não me faz perder tempo! Eu sou o Rick mais Rick do multiverso! Letra C, traço, e cento e trinta e... digita logo!</span>"
+        },
+        {
+            dialogue: [
+                "<span class='success'>> PORTAL ABERTO. ESCAPE EMINENTE.</span>",
+                "<span class='system'>> [ALERTA] RICK E MORTY EVACUADOS COM SUCESSO.</span>",
+                "<span class='system'>> [SISTEMA] INTERRUPÇÃO DE NÚCLEO ROMÂNTICO DETECTADA.</span>",
+                "<br>",
+                "<span class='system'>> ÚLTIMO NÍVEL: QUÍMICA DO AMOR</span>",
+                "<span class='system'>SISTEMA: O caos interdimensional passou, mas a melhor reação química ficou. Para criar a ligação mais forte e estável do universo, dois átomos decidem **compartilhar** seus elétrons. Como se chama essa ligação?</span>"
+            ],
+            answers: ['covalente', 'ligação covalente'],
+            hint: "<span class='error'>> DICA DA SUA NAMORADA GRIFINÓRIA: 'Co' (compartilhar) + 'Valente' (elétrons de valência). É o que nós temos! Tenta de novo.</span>"
+        }
+    ];
+
+    // Tela de Boot Inicial
+    async function bootSequence() {
+        const bootText = [
+            "Bypassing mainframe security...",
+            "Decrypting Hufflepuff database...",
+            "Intercepting interdimensional portal signature...",
+            "Establishing connection with Central Command...",
+            "<span class='success'>ACCESS GRANTED</span>"
+        ];
+        
+        for (let text of bootText) {
+            output.innerHTML += `<p class='system'>${text}</p>`;
+            await sleep(800);
+        }
+        
+        output.innerHTML = ""; // Limpa a tela após o boot
+        progressBar.style.display = 'block'; // Mostra a barra de progresso
+        updateProgress();
+        printText(levels[currentLevel].dialogue);
+    }
+
+    function updateProgress() {
+        progressBar.innerHTML = `[ STATUS: NÍVEL ${currentLevel + 1} / ${levels.length} ]`;
+    }
+
+    async function printText(textArray) {
+        isTyping = true;
+        inputContainer.style.display = 'none';
+        
+        for (let text of textArray) {
+            output.innerHTML += `<p>${text}</p>`;
+            terminal.scrollTop = terminal.scrollHeight;
+            
+            let delay = text.includes('<br>') ? 0 : (text.includes('RICK') || text.includes('SNAPE') || text.includes('MORTY')) ? 2000 : 1000;
+            await sleep(delay);
+        }
+        
+        inputContainer.style.display = 'flex';
+        input.focus();
+        terminal.scrollTop = terminal.scrollHeight;
+        isTyping = false;
+    }
+
+    window.onload = () => {
+        bootSequence();
+    };
+
+    input.addEventListener('keypress', async function (e) {
+        if (e.key === 'Enter' && !isTyping) {
+            const resposta = input.value.toLowerCase().trim();
+            if(resposta === '') return;
+            
+            input.value = ''; 
+            inputContainer.style.display = 'none'; 
+            
+            output.innerHTML += `<p class='hufflepuff'>> VOCÊ DIGITOU: ${resposta.toUpperCase()}</p>`;
+            terminal.scrollTop = terminal.scrollHeight;
+
+            await sleep(800);
+
+            let acertou = levels[currentLevel].answers.some(ans => resposta.includes(ans));
+
+            if (acertou) {
+                currentLevel++;
+                if (currentLevel < levels.length) {
+                    if(currentLevel % 3 === 0) {
+                        output.innerHTML = "<p class='system' class='glitch'>> [LIMPANDO CACHE DE MEMÓRIA...]</p><br>";
+                        await sleep(1000);
+                    }
+                    updateProgress();
+                    printText(levels[currentLevel].dialogue);
+                } else {
+                    progressBar.style.display = 'none';
+                    output.innerHTML += `<p class='success'>> COMPARTILHAMENTO DE ELÉTRONS CONFIRMADO. LIGAÇÃO ESTABELECIDA COM SUCESSO.</p>`;
+                    await sleep(2000);
+                    output.innerHTML = ''; 
+                    final.classList.remove('hidden'); 
+                }
+            } else {
+                output.innerHTML += `<p>${levels[currentLevel].hint}</p>`;
+                terminal.scrollTop = terminal.scrollHeight;
+                
+                await sleep(1500);
+                inputContainer.style.display = 'flex';
+                input.focus();
+                terminal.scrollTop = terminal.scrollHeight;
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
