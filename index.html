@@ -325,7 +325,36 @@
     }
 
     window.onload = () => {
-        bootSequence();
+        const dataDesbloqueio = new Date(2026, 1, 20, 0, 0, 0); // O Mês 1 é Fevereiro no JavaScript
+        const dataAtual = new Date();
+
+        if (dataAtual < dataDesbloqueio) {
+            output.innerHTML = `
+                <div style="text-align: center; margin-top: 30px; animation: fadeIn 2s; max-width: 80%; margin-left: auto; margin-right: auto;">
+    <h1 class="error glitch" style="font-size: 45px; text-shadow: 0 0 10px #ff4d4d;">[ ACESSO TEMPORAL BLOQUEADO ]</h1>
+    
+    <p class="snape" style="margin-top: 30px; text-align: justify; line-height: 1.5;">
+        SNAPE: "Fascinante... A ansiedade de uma Lufa-Lufa realmente não conhece limites. A senhorita presume que as leis do tempo se curvam ao seu capricho? Tentar invadir este perímetro restrito antes da data exata do seu aniversário renderia, no mínimo, um mês de detenção limpando caldeirões. Sua namorada Grifinória estruturou este código com extrema precisão, e eu não vou permitir que sua pressa estrague o trabalho dela. Menos 50 pontos para a Lufa-Lufa pela audácia de tentar burlar o sistema."
+    </p>
+    
+    <p class="rick" style="margin-top: 20px; text-align: justify; line-height: 1.5;">
+        RICK: "Ou, ou, ou! Calma aí, espertinha! *burp* Você acha que pode simplesmente forçar a entrada num servidor com bloqueio quântico sem desestabilizar a realidade?! A sua namorada calibrou essa maldita assinatura temporal pra exata MEIA-NOITE do dia 20 de fevereiro! Se você hackear isso agora, vai fundir a nossa dimensão com o calabouço desse gótico do cabelo oleoso aí! Sai do terminal, vai assistir TV, come um bolo! Volta s-só quando for a hora certa! Eu não tenho tempo pra salvar o multiverso de aniversariante bisbilhoteira hoje!"
+    </p>
+    
+    <p class="morty" style="margin-top: 20px; text-align: justify; line-height: 1.5;">
+        MORTY: "A-aw geez, Rick! Pega leve, e-ela só queria ver o presente... M-mas olha, ele tem razão! O código só abre a meia-noite, p-por favor, não aperta o Enter de novo! A sua namorada teve o maior trabalho, e-eu não quero ser desintegrado por um erro de JavaScript mágico!"
+    </p>
+    
+    <div style="margin-top: 40px; padding: 15px; border: 1px dashed #32ff7e; background: rgba(0,25,0,0.5);">
+        <p class="system glitch" style="font-weight: bold; font-size: 26px; margin: 0;">
+            > STATUS: AGUARDANDO ALINHAMENTO (20/02/2026 - 00:00)...
+        </p>
+    </div>
+</div>
+            `;
+        } else {
+            bootSequence();
+        }
     };
 
     input.addEventListener('keypress', async function (e) {
